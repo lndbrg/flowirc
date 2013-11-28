@@ -12,3 +12,4 @@ syntax: glob
 tags
 *egg-info/*
 __pycache__
+ircd
