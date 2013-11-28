@@ -11,3 +11,4 @@ syntax: glob
 .project
 tags
 *egg-info/*
+__pycache__
