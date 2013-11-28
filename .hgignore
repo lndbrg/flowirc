@@ -1,0 +1,13 @@
+syntax: glob
+
+.DS_Store
+*.pyc
+*.swp
+*.swo
+*.un~
+.idea
+.ropeproject
+.pydevproject
+.project
+tags
+*egg-info/*
