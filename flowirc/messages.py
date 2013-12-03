@@ -29,8 +29,7 @@ class MessageBase:
             else cls.__name__.upper().replace('MESSAGE', '')
 
     def __getattr__(self, attr):
-        if hasattr(str, attr):
-            return getattr(str(self), attr)
+        return getattr(str(self), attr)
 
     @classmethod
     def from_str(cls, string):
@@ -52,7 +51,6 @@ class MessageBase:
             class_ = getattr(module, '{command}Message'.
             format(command=command.capitalize()))
             del module
-            print(args)
             print("CREATING {} with args {}".format(class_, args))
             msg = class_(*args)
             return (msg)
