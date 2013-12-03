@@ -13,3 +13,5 @@ tags
 *egg-info/*
 __pycache__
 ircd
+.coverage
+cover
