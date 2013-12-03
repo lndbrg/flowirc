@@ -4,7 +4,7 @@ from collections import OrderedDict
 from flowirc.messages import MessageBase, PingMessage, JoinMessage
 
 
-__author__ = 'olle.lundberg'
+__author__ = 'Olle Lundberg'
 
 
 class TestMessageBase(TestCase):

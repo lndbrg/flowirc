@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from flowirc.messages import QuitMessage
 
-__author__ = 'olle.lundberg'
+__author__ = 'Olle Lundberg'
 
 
 class TestQuitMessage(TestCase):

@@ -3,7 +3,7 @@ from unittest.mock import Mock, patch, call, MagicMock
 from flowirc.client import IRCClientProtocol
 
 
-__author__ = 'olle.lundberg'
+__author__ = 'Olle Lundberg'
 
 
 class TestIRCClientProtocol(TestCase):

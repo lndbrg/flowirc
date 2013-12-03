@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-__author__ = 'olle.lundberg'
+__author__ = 'Olle Lundberg'
 
 
 class TestModeMessage(TestCase):

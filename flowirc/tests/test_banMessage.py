@@ -1,7 +1,7 @@
 from unittest import TestCase
 from flowirc.messages import BanMessage, ModeMessageBase
 
-__author__ = 'olle.lundberg'
+__author__ = 'Olle Lundberg'
 
 
 class TestBanMessage(TestCase):
