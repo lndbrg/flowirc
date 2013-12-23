@@ -26,7 +26,7 @@ class TestMessageBase(TestCase):
         ping = "PING :irc.example.net"
         pingmsg = MessageBase.from_str(ping)
         self.assertIsInstance(pingmsg, PingMessage)
-        self.assertEqual(ping,str(pingmsg))
+        self.assertEqual(ping, str(pingmsg))
 
         join = ':flowirc!~flowirc@localhost JOIN :#foo'
         joinmsg = MessageBase.from_str(join)
