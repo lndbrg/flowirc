@@ -7,6 +7,5 @@ __author__ = 'Olle Lundberg'
 
 class TestParameterizedMessage(TestCase):
     def test_parameterizedmessage(self):
-        self.assertEqual("PARAMETERIZED prefix infix suffix\r\n",
-                         str(ParameterizedMessage("prefix", "infix",
-                                                  "suffix")))
+        self.assertEqual("PARAMETERIZED foo bar :baz\r\n",
+                         str(ParameterizedMessage("foo", "bar", "baz")))

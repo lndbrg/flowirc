@@ -19,7 +19,7 @@ class TestSimpleMessages(TestCase):
         self.assertEqual("PING irc.example.net\r\n",
                          str(PingMessage("irc.example.net")))
 
-    def test_pingmessage(self):
+    def test_pongmessage(self):
         ping = PingMessage("irc.example.net")
         self.assertEqual("PONG irc.example.net\r\n",
                          str(PongMessage(ping)))

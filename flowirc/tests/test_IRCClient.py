@@ -2,7 +2,7 @@ from unittest import TestCase
 from unittest.mock import Mock, patch, MagicMock
 
 from flowirc.client import IRCClient
-from flowirc.messages import PingMessage
+from flowirc.messages import PingMessage, PongMessage
 
 
 __author__ = 'Olle Lundberg'
@@ -145,7 +145,17 @@ class TestIRCClient(TestCase):
         cli = IRCClient(name=__name__, loop=Mock())
         @cli.listen_to(PingMessage)
         def foo(msg):
-            pass
+            return True
+        self.assertTrue(foo(PingMessage("PING :irc.example.com")))
         @cli.listen_to(PingMessage())
         def foo(msg):
-            pass
+            return True
+        self.assertTrue(foo(PingMessage("PING :irc.example.com")))
+
+    def test_matches(self):
+        cli = IRCClient(name=__name__, loop=Mock())
+        pingmsg = PingMessage("PING :irc.example.com")
+        pongmsg = PongMessage(pingmsg)
+        self.assertTrue(cli.matches(pingmsg, pingmsg))
+        self.assertFalse(cli.matches(pingmsg, pongmsg))
+

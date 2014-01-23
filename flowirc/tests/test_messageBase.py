@@ -1,4 +1,4 @@
-from unittest import TestCase, expectedFailure
+from unittest import TestCase
 from collections import OrderedDict
 
 from flowirc.messages import MessageBase, PingMessage, JoinMessage
@@ -20,18 +20,20 @@ class TestMessageBase(TestCase):
 
         self.assertRaises(AttributeError, for_test, foo)
 
-    @expectedFailure
     def test_from_str(self):
         self.assertRaises(Exception, MessageBase.from_str, '')
         ping = "PING :irc.example.net"
         pingmsg = MessageBase.from_str(ping)
         self.assertIsInstance(pingmsg, PingMessage)
-        self.assertEqual(ping, str(pingmsg))
+        self.assertEqual("PING irc.example.net\r\n", str(pingmsg))
 
-        join = ':flowirc!~flowirc@localhost JOIN :#foo'
-        joinmsg = MessageBase.from_str(join)
+        prefix = 'flowirc!~flowirc@localhost'
+        join = 'JOIN :#foo'
+        joinfull = ':{prefix} {join}'.format(prefix=prefix, join=join)
+        joinmsg = MessageBase.from_str(joinfull)
         self.assertIsInstance(joinmsg, JoinMessage)
-        self.assertEqual(join, str(joinmsg))
+        self.assertEqual(prefix, joinmsg.prefix)
+        self.assertEqual("JOIN #foo\r\n", str(joinmsg))
 
         crap = 'CRAP foo'
         crapmsg = MessageBase.from_str(crap)
