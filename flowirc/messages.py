@@ -1,10 +1,10 @@
 from collections import OrderedDict
 import importlib
-import inspect
 
 
 class MessageBase:
     _type = None
+    prefix = None
 
     def __init__(self, ordered_args):
         super().__init__()
@@ -53,21 +53,28 @@ class MessageBase:
             del module
             print("CREATING {} with args {}".format(class_, args))
             msg = class_(*args)
+            msg.prefix = prefix
             return (msg)
         except AttributeError:
             pass
         return None
 
 
-        #return prefix, command, args
-
-
 class ParameterizedMessage(MessageBase):
-    def __init__(self, prefix=None, infix=None, suffix=None):
-        frame = inspect.currentframe()
-        args, _, _, kwargs = inspect.getargvalues(frame)
-        del frame
-        ordered_args = OrderedDict(((arg, kwargs[arg]) for arg in args[1:]))
+    def __init__(self, *parameters):
+
+        parameters = list(parameters)
+        trailing = parameters.pop()
+        parameters = [str(param) for param in parameters
+                      if param is not None]
+
+        if len(parameters) > 0:
+            parameters = " ".join(parameters)
+            if trailing is not None:
+                trailing = ':{trailing}'.format(trailing=trailing)
+        ordered_args = OrderedDict()
+        ordered_args['middle'] = parameters
+        ordered_args['trailing'] = trailing
         super().__init__(ordered_args)
 
 
@@ -77,7 +84,7 @@ class ModeMessageBase(ParameterizedMessage):
     def __init__(self, channel=None, mode=None, user=None):
         if mode is None:
             mode = self._mode
-        super().__init__(channel, mode, user)
+        super().__init__(channel, mode, user, None)
 
 
 class ModeMessage(ModeMessageBase):
@@ -92,25 +99,22 @@ class BanMessage(ModeMessage):
 
 
 class UserMessage(ParameterizedMessage):
-    _infix = '0 * :'
-
-    def __init__(self, nick=None, name=None):
-        super().__init__(nick, self._infix, name)
+    def __init__(self, nick=None, name=None, mode=0):
+        super().__init__(nick, mode, '*', name)
 
 
 class QuitMessage(ParameterizedMessage):
-    _infix = ':'
     _message = "Good bye my friend it's hard to die!"
 
     def __init__(self, message=None):
         if message is None:
             message = self._message
-        super().__init__(infix=self._infix, suffix=message)
+        super().__init__('', message)
 
 
 class SimpleMessage(ParameterizedMessage):
-    def __init__(self, param=None):
-        super().__init__(param)
+    def __init__(self, trailing=None):
+        super().__init__(trailing)
 
 
 class NickMessage(SimpleMessage):
