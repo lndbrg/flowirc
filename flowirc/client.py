@@ -1,6 +1,8 @@
-import asyncio
 import functools
 from collections import defaultdict
+
+import asyncio
+
 from flowirc.protocol import IRCClientProtocol
 from flowirc.messages import *
 
@@ -9,11 +11,27 @@ __author__ = 'Olle Lundberg'
 
 
 class IRCClient(IRCClientProtocol):
-    def __init__(self, name=None, host='localhost', port=None,
-                 user="flowirc", nick="flowirc", ssl=None, loop=None):
-        assert name is not None, "The client needs to be identified by a " \
-                                 "name."
+    _full_name_template = "{name} a Flowirc bot"
 
+    def __init__(self, host='localhost', port=None, full_name=None, *,
+                 user="flowirc", nick="flowirc", ssl=None, loop=None):
+
+        if full_name is None:
+            import inspect
+
+            form = inspect.stack()[1]
+            module = inspect.getmodule(form[0])
+            full_name = module.__name__
+            if full_name == '__main__':
+                import os
+
+                full_name = os.path.splitext(
+                    os.path.basename(
+                        module.__file__))[0]
+            else:
+                _, _, full_name = full_name.rpartition('.')
+            del module
+            del form
 
         if loop is None:
             loop = asyncio.get_event_loop()
@@ -30,16 +48,15 @@ class IRCClient(IRCClientProtocol):
             else:
                 ssl = False
 
-
-
         self.__listeners = defaultdict(list)
-        self._name = name
+        self._full_name = self._full_name_template.format(name=full_name)
         self._nick = nick
         self._user = user
         self.host = host
         self.port = port
         self.ssl = ssl
         self.loop = loop
+
 
     def run(self, use_default_listeners=True):
         if use_default_listeners:
@@ -53,30 +70,37 @@ class IRCClient(IRCClientProtocol):
             port=self.port,
             ssl=self.ssl))
 
+
     def run_forever(self, use_default_listeners=True):
         self.run(use_default_listeners)
         self.loop.run_forever()
+
 
     def after_connection_made(self):
         self.identify()
         self.join("#foo")
 
+
     def identify(self):
         self.nick()
         self.user()
+
 
     def nick(self, nick=None):
         if nick is not None and nick != self._nick:
             self._nick = nick
         self.send(NickMessage(self._nick))
 
+
     def user(self, user=None):
         if user is not None and user != self._user:
             self._user = user
-        self.send(UserMessage(self._nick, self._user))
+        self.send(UserMessage(self._user, self._full_name))
+
 
     def join(self, channel):
         self.send(JoinMessage(channel))
+
 
     def listen_to(self, message):
         if callable(message):
@@ -94,6 +118,7 @@ class IRCClient(IRCClientProtocol):
 
         return decorator
 
+
     @asyncio.coroutine
     def message_received(self, msg):
         listeners = self.__listeners[msg.type()]
@@ -104,6 +129,7 @@ class IRCClient(IRCClientProtocol):
             result = yield from future
             if isinstance(result, MessageBase):
                 self.send(result)
+
 
     def matches(self, message1, message2):
         return True
