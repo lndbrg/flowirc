@@ -51,7 +51,6 @@ class MessageBase:
             class_ = getattr(module, '{command}Message'.
             format(command=command.capitalize()))
             del module
-            print("CREATING {} with args {}".format(class_, args))
             msg = class_(*args)
             msg.prefix = prefix
             return (msg)
@@ -99,8 +98,8 @@ class BanMessage(ModeMessage):
 
 
 class UserMessage(ParameterizedMessage):
-    def __init__(self, nick=None, name=None, mode=0):
-        super().__init__(nick, mode, '*', name)
+    def __init__(self, user=None, full_name=None, mode=0):
+        super().__init__(user, mode, '*', full_name)
 
 
 class QuitMessage(ParameterizedMessage):
