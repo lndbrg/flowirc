@@ -10,7 +10,21 @@ __author__ = 'Olle Lundberg'
 
 class TestIRCClient(TestCase):
     def test_init_no_name(self):
-        self.assertRaises(AssertionError, IRCClient)
+        bot = IRCClient()
+        self.assertEqual('test_IRCClient a Flowirc bot', bot._full_name)
+
+    def test_init_no_name_with_main_mod(self):
+        inspect_mod = Mock()
+        inspect_mod.stack.return_value = MagicMock()
+        mocked_module = MagicMock()
+        mocked_module.__name__ = '__main__'
+        mocked_module.__file__ = 'foo/bar.py'
+        inspect_mod.getmodule.return_value = mocked_module
+        bot = None
+        with patch.dict('sys.modules', inspect=inspect_mod):
+            bot = IRCClient()
+
+        self.assertEqual('bar a Flowirc bot', bot._full_name)
 
     @patch('asyncio.get_event_loop')
     def test_init_loops(self, gel):
@@ -33,7 +47,7 @@ class TestIRCClient(TestCase):
     @patch('importlib.import_module')
     @patch('asyncio.Task')
     def test_run(self, task, mod_register):
-        cli = IRCClient(name=__name__, loop=Mock())
+        cli = IRCClient(full_name=__name__, loop=Mock())
         test_object = Mock()
         cli.loop.create_connection = MagicMock(return_value = test_object)
         cli.run()
@@ -45,21 +59,21 @@ class TestIRCClient(TestCase):
     @patch('importlib.import_module')
     @patch('asyncio.Task')
     def test_run_no_default_listeners(self, task, mod_register):
-        cli = IRCClient(name=__name__, loop = Mock())
+        cli = IRCClient(full_name=__name__, loop = Mock())
         cli.loop.create_connection = MagicMock(return_value = None)
         cli.run(False)
         self.assertEqual(0, mod_register.call_count)
         self.assertEqual(1, cli.loop.create_connection.call_count)
 
     def test_run_forever(self):
-        cli = IRCClient(name=__name__, loop=Mock())
+        cli = IRCClient(full_name=__name__, loop=Mock())
         cli.run = Mock()
         cli.run_forever(False)
         cli.run.assert_called_once_with(False)
         self.assertEqual(1, cli.loop.run_forever.call_count)
 
     def test_after_connection_made(self):
-        cli = IRCClient(name=__name__, loop=Mock())
+        cli = IRCClient(full_name=__name__, loop=Mock())
         cli.identify = Mock()
         cli.join = Mock()
         cli.after_connection_made()
@@ -67,7 +81,7 @@ class TestIRCClient(TestCase):
         cli.join.assert_assert_called_once_with('#foo')
 
     def test_identify(self):
-        cli = IRCClient(name=__name__, loop=Mock())
+        cli = IRCClient(full_name=__name__, loop=Mock())
         cli.user = Mock()
         cli.nick = Mock()
         cli.identify()
@@ -77,7 +91,7 @@ class TestIRCClient(TestCase):
     @patch('flowirc.client.JoinMessage')
     def test_join(self, joinmessage):
         TEST_CHAN = '#FOO'
-        cli = IRCClient(name=__name__, loop=Mock())
+        cli = IRCClient(full_name=__name__, loop=Mock())
         cli.send = Mock()
         cli.join(TEST_CHAN)
         joinmessage.assert_called_once_with(TEST_CHAN)
@@ -85,7 +99,7 @@ class TestIRCClient(TestCase):
 
     @patch('flowirc.client.NickMessage')
     def test_nick_default(self, nickmessage):
-        cli = IRCClient(name=__name__, loop=Mock())
+        cli = IRCClient(full_name=__name__, loop=Mock())
         cli.send = Mock()
         cli.nick()
         nickmessage.assert_called_once_with(cli._nick)
@@ -95,7 +109,7 @@ class TestIRCClient(TestCase):
     @patch('flowirc.client.NickMessage')
     def test_nick_constructor_nick(self, nickmessage):
         TEST_NICK = 'testnick'
-        cli = IRCClient(name=__name__, nick=TEST_NICK, loop=Mock())
+        cli = IRCClient(full_name=__name__, nick=TEST_NICK, loop=Mock())
         cli.send = Mock()
         cli.nick()
         nickmessage.assert_called_once_with(TEST_NICK)
@@ -105,7 +119,7 @@ class TestIRCClient(TestCase):
     @patch('flowirc.client.NickMessage')
     def test_nick_set_nick(self, usermessage):
         TEST_NICK = 'testnick'
-        cli = IRCClient(name=__name__, loop=Mock())
+        cli = IRCClient(full_name=__name__, loop=Mock())
         cli.send = Mock()
         cli.nick(TEST_NICK)
         usermessage.assert_called_once_with(TEST_NICK)
@@ -114,35 +128,35 @@ class TestIRCClient(TestCase):
 
     @patch('flowirc.client.UserMessage')
     def test_user_default(self, usermessage):
-        cli = IRCClient(name=__name__, loop=Mock())
+        cli = IRCClient(full_name=__name__, loop=Mock())
         cli.send = Mock()
         cli.user()
-        usermessage.assert_called_once_with(cli._nick, cli._user)
+        usermessage.assert_called_once_with(cli._user, cli._full_name)
         cli.send.assert_assert_called_once_with(usermessage)
         self.assertEqual(cli._user, 'flowirc')
 
     @patch('flowirc.client.UserMessage')
     def test_user_constructor_user(self, usermessage):
         TEST_USER = 'testuser'
-        cli = IRCClient(name=__name__, user=TEST_USER, loop=Mock())
+        cli = IRCClient(full_name=__name__, user=TEST_USER, loop=Mock())
         cli.send = Mock()
         cli.user()
-        usermessage.assert_called_once_with(cli._nick, TEST_USER)
+        usermessage.assert_called_once_with(TEST_USER, cli._full_name)
         cli.send.assert_assert_called_once_with(usermessage)
         self.assertEqual(cli._user, TEST_USER)
 
     @patch('flowirc.client.UserMessage')
     def test_user_set_user(self, usermessage):
         TEST_USER = 'testuser'
-        cli = IRCClient(name=__name__, loop=Mock())
+        cli = IRCClient(full_name=__name__, loop=Mock())
         cli.send = Mock()
         cli.user(TEST_USER)
-        usermessage.assert_called_once_with(cli._nick, TEST_USER)
+        usermessage.assert_called_once_with(TEST_USER, cli._full_name)
         cli.send.assert_assert_called_once_with(usermessage)
         self.assertEqual(cli._user, TEST_USER)
 
     def test_listen_to(self):
-        cli = IRCClient(name=__name__, loop=Mock())
+        cli = IRCClient(full_name=__name__, loop=Mock())
         @cli.listen_to(PingMessage)
         def foo(msg):
             return True
@@ -153,7 +167,7 @@ class TestIRCClient(TestCase):
         self.assertTrue(foo(PingMessage("PING :irc.example.com")))
 
     def test_matches(self):
-        cli = IRCClient(name=__name__, loop=Mock())
+        cli = IRCClient(full_name=__name__, loop=Mock())
         pingmsg = PingMessage("PING :irc.example.com")
         pongmsg = PongMessage(pingmsg)
         self.assertTrue(cli.matches(pingmsg, pingmsg))
