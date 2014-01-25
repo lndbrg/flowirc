@@ -1,7 +1,7 @@
-from flowirc.messages.base import IRCMessage
+from flowirc.messages.base import MessageBase
 
 __author__ = 'Olle Lundberg'
 
 
-class ConnectionMessage(IRCMessage):
+class ConnectionMessage(MessageBase):
     pass

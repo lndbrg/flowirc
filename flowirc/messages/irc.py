@@ -1,10 +1,10 @@
 from collections import OrderedDict
 import importlib
 from flowirc.log import log
-from flowirc.messages.base import IRCMessage
+from flowirc.messages.base import MessageBase
 
 
-class IRCMessage(IRCMessage):
+class IRCMessage(MessageBase):
     prefix = None
 
     def __init__(self, ordered_args):

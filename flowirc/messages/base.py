@@ -1,7 +1,7 @@
 __author__ = 'Olle Lundberg'
 
 
-class IRCMessage:
+class MessageBase:
     _type = None
     @classmethod
     def type(cls):
