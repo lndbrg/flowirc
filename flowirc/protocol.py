@@ -1,6 +1,7 @@
 import asyncio
-from flowirc.messages import MessageBase
-
+from flowirc.messages import IRCMessage
+from flowirc.messages.middleware import ConnectionMessage
+from flowirc.log import log
 __author__ = 'Olle Lundberg'
 
 
@@ -14,25 +15,31 @@ class IRCClientProtocol(asyncio.Protocol):
         transport, protocol = yield from loop.create_connection(
         IRCClientProtocol, 'localhost', 6667)
     """
-
+    _transport = False
     def connection_made(self, transport):
+        log.info("Connected")
         self._transport = transport
-        self.after_connection_made()
+        self.message_received(ConnectionMessage)
 
     def send(self, *lines):
         for line in lines:
             data = line.encode()
-            self._transport.write(data)
+            if self._transport:
+                log.debug("Sending data: %s", data)
+                self._transport.write(data)
 
     def data_received(self, data):
         lines = data.decode().split("\r\n")
         for line in lines:
 
             if len(line) <= 2:
+                log.debug("Received junk data %s", line)
                 continue
-
-            msg = MessageBase.from_str(line)
-
+            log.debug("Received line %s", line)
+            msg = IRCMessage.from_str(line)
             if msg is not None:
-                asyncio.Task(self.message_received(msg))
+                self.message_received(msg)
 
+    def message_received(self, msg):
+        raise NotImplementedError("message_received needs to be implemented "
+                                  "in a subclass.")

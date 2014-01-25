@@ -1,9 +1,10 @@
 from collections import OrderedDict
 import importlib
+from flowirc.log import log
+from flowirc.messages.base import IRCMessage
 
 
-class MessageBase:
-    _type = None
+class IRCMessage(IRCMessage):
     prefix = None
 
     def __init__(self, ordered_args):
@@ -22,11 +23,6 @@ class MessageBase:
         return ''.join([result_string.rstrip().format(type=self.type(),
                                                       **self._asdict),
                         '\r\n'])
-
-    @classmethod
-    def type(cls):
-        return cls._type if cls._type \
-            else cls.__name__.upper().replace('MESSAGE', '')
 
     def __getattr__(self, attr):
         return getattr(str(self), attr)
@@ -51,15 +47,16 @@ class MessageBase:
             class_ = getattr(module, '{command}Message'.
             format(command=command.capitalize()))
             del module
+            log.debug("Creating %s with args %s", class_, args)
             msg = class_(*args)
             msg.prefix = prefix
             return (msg)
         except AttributeError:
+            log.warning("Message creation failed for: %s" % string)
             pass
         return None
 
-
-class ParameterizedMessage(MessageBase):
+class ParameterizedMessage(IRCMessage):
     def __init__(self, *parameters):
 
         parameters = list(parameters)
@@ -134,5 +131,6 @@ class PingMessage(SimpleMessage):
 
 class PongMessage(SimpleMessage):
     def __init__(self, msg):
-        sender = msg.split()[1]
+        print(msg)
+        sender = msg.split()[-1]
         super().__init__(sender)

@@ -10,6 +10,7 @@ class TestIRCClientProtocol(TestCase):
     def setUp(self):
         self.proto = IRCClientProtocol()
         self.transport = Mock()
+        self.proto.message_received = Mock()
 
     def tearDown(self):
         self.proto = None
@@ -41,36 +42,36 @@ class TestIRCClientProtocol(TestCase):
         self.assertRaises(AttributeError, self.proto.send, data)
 
     @patch('asyncio.Task')
-    @patch('flowirc.protocol.MessageBase')
-    def test_data_received(self, messagebase, task):
+    @patch('flowirc.protocol.IRCMessage')
+    def test_data_received(self, ircmessage, task):
         self.proto.message_received = Mock()
         self.proto.data_received(b'')
         self.proto.data_received(b'f')
         self.assertEqual(0, task.call_count)
 
         self.proto.data_received(b'foo')
-        self.assertEqual(1, messagebase.from_str.call_count)
+        self.assertEqual(1, ircmessage.from_str.call_count)
         self.assertEqual(1, self.proto.message_received.call_count)
 
     @patch('asyncio.Task')
-    @patch('flowirc.protocol.MessageBase')
-    def test_data_received_2(self, messagebase, task):
+    @patch('flowirc.protocol.IRCMessage')
+    def test_data_received_2(self, ircmessage, task):
         self.proto.message_received = Mock()
         ping = "PING irc.example.net\r\n"
         mock = MagicMock(return_value=ping)
-        messagebase.from_str = mock
+        ircmessage.from_str = mock
         self.proto.data_received(b' \r\nPING :irc.example.net\r\n')
-        self.assertEqual(1, messagebase.from_str.call_count)
+        self.assertEqual(1, ircmessage.from_str.call_count)
         self.proto.message_received.assert_called_once_with(ping)
 
 
     @patch('asyncio.Task')
-    @patch('flowirc.protocol.MessageBase')
-    def test_data_received_3(self, messagebase, task):
+    @patch('flowirc.protocol.IRCMessage')
+    def test_data_received_3(self, ircmessage, task):
         self.proto.message_received = Mock()
         mock = MagicMock(return_value=None)
-        messagebase.from_str = mock
+        ircmessage.from_str = mock
         self.proto.data_received(b' \r\nNOT_A_CMD :irc.example.net\r\n')
-        self.assertEqual(1, messagebase.from_str.call_count)
+        self.assertEqual(1, ircmessage.from_str.call_count)
         self.assertEqual(0, self.proto.message_received.call_count)
 
