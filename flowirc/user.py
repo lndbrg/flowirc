@@ -66,10 +66,9 @@ class IRCUser:
             del module
             del form
 
-        self._listener = None
         self.nick = nick
         self.full_name = self._full_name_template.format(name=full_name)
         self.user = user
 
-    def send(self, msg):
+    def send(self, *args):
         pass

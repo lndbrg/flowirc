@@ -1,12 +1,25 @@
-from collections import defaultdict
-
 import asyncio
+
+from flowirc.middleware.base import MiddleWareBase
 from flowirc.messages import IRCMessage
 from flowirc.log import log
 from flowirc.protocol import IRCClientProtocol
 
 
-class IRCMiddleWare(IRCClientProtocol):
+__author__ = 'Olle Lundberg'
+
+
+class IRCMiddleWareBase(MiddleWareBase):
+    def on(self, message, callback):
+        if callable(message):
+            message = message()
+        log.debug("Registering callback %r for messagetype %s",
+                  callback,
+                  message.type())
+        self.add_listener(message.type(), callback, message)
+
+
+class IRCMiddleWare(IRCMiddleWareBase, IRCClientProtocol):
     def __init__(self, host='localhost', port=None, ssl=None, loop=None):
         if port is None:
             if ssl:
@@ -22,7 +35,6 @@ class IRCMiddleWare(IRCClientProtocol):
         if loop is None:
             loop = asyncio.get_event_loop()
 
-        self.__listeners = defaultdict(list)
         self.host = host
         self.port = port
         self.ssl = ssl
@@ -46,22 +58,13 @@ class IRCMiddleWare(IRCClientProtocol):
     def message_received(self, message):
         asyncio.Task(self.dispatch_message(message))
 
-    def on(self, message, callback):
-        if callable(message):
-            message = message()
-        log.debug("Registering callback %s for messagetype %s",
-                  callback,
-                  message.type())
-        self.__listeners[message.type()]. \
-            append((message, asyncio.coroutine(callback)))
-
 
     @asyncio.coroutine
     def dispatch_message(self, message):
         log.debug("Received message: %s", message)
-        listeners = self.__listeners[message.type()]
+        listeners = self._listeners[message.type()]
 
-        coroutines = [callback(message) for message_type, callback in
+        coroutines = [callback(message) for callback, message_type in
                       listeners if self.matches(message, message_type)]
         for future in asyncio.as_completed(coroutines):
             result = yield from future
@@ -71,4 +74,4 @@ class IRCMiddleWare(IRCClientProtocol):
 
 
     def matches(self, message1, message2):
-        return True
+        return message1 == message2

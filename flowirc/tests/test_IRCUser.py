@@ -25,13 +25,6 @@ class TestIRCUser(TestCase):
 
         self.assertEqual('bar a Flowirc bot', bot.full_name)
 
-    def test_identify(self):
-        cli = IRCUser()
-        cli.user = Mock()
-        cli.nick = Mock()
-        self.assertEqual(1, cli.user.call_count)
-        self.assertEqual(1, cli.nick.call_count)
-
     @patch('flowirc.user.NickMessage')
     def test_nick_default(self, nickmessage):
         cli = IRCUser()
@@ -45,7 +38,6 @@ class TestIRCUser(TestCase):
         TEST_NICK = 'TEST_NICK'
         cli = IRCUser(full_name=__name__, nick=TEST_NICK)
         cli.send = Mock()
-        cli.nick
         nickmessage.assert_called_once_with(TEST_NICK)
         cli.send.assert_assert_called_once_with(nickmessage)
         self.assertEqual(cli.nick, TEST_NICK)

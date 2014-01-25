@@ -24,6 +24,7 @@ class IRCMessage(MessageBase):
                                                       **self._asdict),
                         '\r\n'])
 
+
     def __getattr__(self, attr):
         return getattr(str(self), attr)
 
