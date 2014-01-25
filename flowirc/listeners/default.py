@@ -4,7 +4,7 @@ from ..messages import PingMessage, PongMessage
 
 
 def register(bot):
-
-    @bot.listen_to(PingMessage)
+    @bot.on(PingMessage)
     def pong(msg):
+        print(msg)
         return PongMessage(msg)
