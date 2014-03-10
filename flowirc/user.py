@@ -1,4 +1,5 @@
 from flowirc.messages.irc import UserMessage, NickMessage
+from flowirc.middleware import MiddleWareBase
 
 __author__ = 'Olle Lundberg'
 
@@ -13,35 +14,26 @@ class _BaseDescriptor:
     def __set__(self, obj, val):
         if self._should_send(val):
             self._what = val
-            self.__notify(obj)
-
-    def __notify(self, obj):
-        if self._what is not None:
             message = self._message(
                 *[getattr(obj, field) for field in self._fields])
-            obj.send(message)
+            obj.trigger(message)
 
+    def _should_send(self, val):
+        return val is not None
 
 class _Nick(_BaseDescriptor):
     _message = NickMessage
     _fields = ['nick']
-
-    def _should_send(self, val):
-        return val is not None
 
 
 class _User(_BaseDescriptor):
     _message = UserMessage
     _fields = ['user', 'full_name']
 
-    def _should_send(self, val):
-        return val is not None
-
-
 _FullName = _User
 
 
-class IRCUser:
+class IRCUser(MiddleWareBase):
     _full_name_template = "{name} a Flowirc bot"
     nick = _Nick('flowirc')
     user = _User('flowirc')
@@ -69,6 +61,3 @@ class IRCUser:
         self.nick = nick
         self.full_name = self._full_name_template.format(name=full_name)
         self.user = user
-
-    def send(self, *args):
-        pass

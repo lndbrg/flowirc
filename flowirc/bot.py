@@ -1,5 +1,6 @@
 import functools
 import importlib
+from flowirc.client import IRCClient
 from flowirc.messages import JoinMessage
 from flowirc.messages.middleware import ConnectionMessage
 from flowirc.middleware import IRCMiddleWare
@@ -9,18 +10,13 @@ from flowirc.log import log
 __author__ = 'Olle Lundberg'
 
 
-class IRCBot(IRCUser):
+class IRCBot:
     def __init__(self, host='localhost', port=None, full_name=None, *,
                  user="flowirc", nick="flowirc", ssl=None):
-        self.middleware = IRCMiddleWare(host, port, ssl)
-        super().__init__(full_name, user, nick)
+        self.client = IRCClient(host, port, ssl)
+        self.user = IRCUser(full_name, user, nick)
 
-        def identify(msg):
-            self.nick = nick
-            self.user = user
-            self.full_name = full_name
-
-        self.middleware.on(ConnectionMessage, identify)
+        self.client.on(ConnectionMessage, lambda x: x)
 
 
     def run(self, use_default_listeners=True):
@@ -28,15 +24,12 @@ class IRCBot(IRCUser):
             mod = importlib.import_module('flowirc.listeners.default')
             mod.register(self)
             del mod
-        self.middleware.run()
+        self.client.run()
 
 
     def on(self, message):
-        if callable(message):
-            message = message()
-
         def decorator(callback):
-            self.middleware.on(message, callback)
+            self.client.on(message, callback)
 
             @functools.wraps(callback)
             def f(*args):
@@ -48,10 +41,10 @@ class IRCBot(IRCUser):
 
     def run_forever(self, use_default_listeners=True):
         self.run(use_default_listeners)
-        self.middleware.loop.run_forever()
+        self.client.loop.run_forever()
 
     def send(self, lines):
-        self.middleware.send(lines)
+        self.client.send(lines)
 
     def join(self, channel):
         self.send(JoinMessage(channel))
