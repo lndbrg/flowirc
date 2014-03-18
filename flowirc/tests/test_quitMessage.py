@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from flowirc.messages import QuitMessage
+from flowirc.message import QuitMessage
 
 __author__ = 'Olle Lundberg'
 

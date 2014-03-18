@@ -1,5 +1,5 @@
 import asyncio
-from flowirc.messages import IRCMessage
+from flowirc.message import IRCMessage
 from flowirc.middleware.base import MiddleWareBase
 from flowirc.log import log
 

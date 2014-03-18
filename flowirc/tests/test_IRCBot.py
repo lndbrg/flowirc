@@ -2,7 +2,7 @@ from unittest import TestCase
 from unittest.mock import Mock, patch, MagicMock
 
 from flowirc.bot import IRCBot
-from flowirc.messages import PingMessage
+from flowirc.message import PingMessage
 
 
 __author__ = 'Olle Lundberg'

@@ -1,4 +1,4 @@
-from flowirc.messages.irc import UserMessage, NickMessage
+from flowirc.message.irc import UserMessage, NickMessage
 from flowirc.middleware import MiddleWareBase
 
 __author__ = 'Olle Lundberg'
@@ -21,12 +21,13 @@ class _BaseDescriptor:
     def _should_send(self, val):
         return val is not None
 
-class _Nick(_BaseDescriptor):
+
+class _Nick(BaseDescriptor):
     _message = NickMessage
     _fields = ['nick']
 
 
-class _User(_BaseDescriptor):
+class _User(BaseDescriptor):
     _message = UserMessage
     _fields = ['user', 'full_name']
 

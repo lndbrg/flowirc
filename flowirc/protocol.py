@@ -1,6 +1,6 @@
 import asyncio
-from flowirc.messages import IRCMessage
-from flowirc.messages.middleware import ConnectionMessage
+from flowirc.message import IRCMessage
+from flowirc.message.middleware import ConnectionMessage
 from flowirc.log import log
 __author__ = 'Olle Lundberg'
 
@@ -8,12 +8,6 @@ __author__ = 'Olle Lundberg'
 class IRCProtocol(asyncio.Protocol):
     """
     IRC Protocol implementation.
-
-    ::
-
-        self.loop = asyncio.get_event_loop()
-        transport, protocol = yield from loop.create_connection(
-        IRCProtocol, 'localhost', 6667)
     """
     _transport = False
     def connection_made(self, transport):

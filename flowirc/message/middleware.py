@@ -1,4 +1,4 @@
-from flowirc.messages.base import MessageBase
+from flowirc.message.base import MessageBase
 
 __author__ = 'Olle Lundberg'
 

@@ -1,7 +1,7 @@
 from unittest import TestCase
 from collections import OrderedDict
 
-from flowirc.messages import IRCMessage, PingMessage, JoinMessage
+from flowirc.message import IRCMessage, PingMessage, JoinMessage
 
 
 __author__ = 'Olle Lundberg'

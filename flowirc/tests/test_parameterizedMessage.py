@@ -1,5 +1,5 @@
 from unittest import TestCase
-from flowirc.messages import ParameterizedMessage
+from flowirc.message import ParameterizedMessage
 
 
 __author__ = 'Olle Lundberg'

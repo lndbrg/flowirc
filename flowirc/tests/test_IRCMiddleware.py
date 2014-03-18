@@ -1,4 +1,4 @@
-from flowirc.messages import PingMessage, PongMessage
+from flowirc.message import PingMessage, PongMessage
 from flowirc.middleware import IRCMiddleWare
 
 __author__ = 'Olle Lundberg'

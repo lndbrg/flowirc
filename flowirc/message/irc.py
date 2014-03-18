@@ -1,7 +1,7 @@
 from collections import OrderedDict
 import importlib
 from flowirc.log import log
-from flowirc.messages.base import MessageBase
+from flowirc.message.base import MessageBase
 
 
 class IRCMessage(MessageBase):

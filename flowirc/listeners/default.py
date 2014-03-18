@@ -1,6 +1,6 @@
 __author__ = 'Olle Lundberg'
 
-from ..messages import PingMessage, PongMessage
+from ..message import PingMessage, PongMessage
 
 
 def register(bot):

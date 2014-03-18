@@ -1,8 +1,8 @@
 import functools
 import importlib
 from flowirc.client import IRCClient
-from flowirc.messages import JoinMessage
-from flowirc.messages.middleware import ConnectionMessage
+from flowirc.message import JoinMessage
+from flowirc.message.middleware import ConnectionMessage
 from flowirc.middleware import IRCMiddleWare
 from flowirc.user import IRCUser
 from flowirc.log import log

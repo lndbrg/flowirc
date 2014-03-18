@@ -1,5 +1,5 @@
 from unittest import TestCase
-from flowirc.messages import ModeMessageBase
+from flowirc.message import ModeMessageBase
 
 
 __author__ = 'Olle Lundberg'
